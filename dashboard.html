@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Дашборд - Система наставничества</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎯 Наставничество</h2>
+                <p class="user-role" id="userName">Загрузка...</p>
+            </div>
+            
+            <div class="month-selector">
+                <label for="monthSelect">Период</label>
+                <select id="monthSelect">
+                    <option value="2026-09">Сентябрь 2026</option>
+                    <option value="2026-08">Август 2026</option>
+                    <option value="2026-07">Июль 2026</option>
+                    <option value="2026-06">Июнь 2026</option>
+                </select>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item active">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Главная
+                </a>
+                
+                <a href="analytics.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Показатели
+                </a>
+                
+                <a href="plans.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    План и результат
+                </a>
+                
+                <a href="employee-history.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    История сотрудников
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button onclick="window.authModule.logout()" class="btn btn-secondary" style="width: 100%;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Выход
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Мои подопечные</h1>
+                <p id="currentMonth">Сентябрь 2026</p>
+            </div>
+            
+            <div class="dashboard-grid" id="employeesGrid">
+                <!-- Карточки сотрудников будут загружены через JS -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        // Проверка авторизации
+        const currentUser = window.authModule.checkAuth();
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+        
+        // Отображение имени пользователя
+        document.getElementById('userName').textContent = currentUser.name;
+        
+        // Загрузка данных и отображение карточек
+        async function loadEmployees() {
+            const database = await window.authModule.loadDatabase();
+            if (!database) return;
+            
+            const selectedMonth = document.getElementById('monthSelect').value;
+            
+            // Фильтруем сотрудников по ВС
+            let employees = database.employees;
+            if (currentUser.role === 'vs') {
+                employees = employees.filter(emp => emp.vs_id === currentUser.id);
+            }
+            
+            const grid = document.getElementById('employeesGrid');
+            grid.innerHTML = '';
+            
+            employees.forEach(emp => {
+                // Находим данные за выбранный месяц
+                const monthData = emp.history.find(h => h.month === selectedMonth);
+                if (!monthData) return;
+                
+                const card = createEmployeeCard(emp, monthData);
+                grid.appendChild(card);
+            });
+        }
+        
+        function createEmployeeCard(employee, monthData) {
+            const card = document.createElement('div');
+            card.className = 'employee-card';
+            
+            // Определяем цвет метрики
+            function getQualityClass(quality) {
+                if (!quality) return '';
+                if (quality >= 90) return 'excellent';
+                if (quality >= 85) return 'good';
+                if (quality >= 80) return 'warning';
+                return 'danger';
+            }
+            
+            function getEfficiencyClass(efficiency) {
+                if (!efficiency) return '';
+                if (efficiency >= 4.0) return 'excellent';
+                if (efficiency >= 3.5) return 'good';
+                if (efficiency >= 3.0) return 'warning';
+                return 'danger';
+            }
+            
+            const qualityClass = getQualityClass(monthData.quality);
+            const efficiencyClass = getEfficiencyClass(monthData.efficiency);
+            const complaintsClass = monthData.complaints > 0 ? 'danger' : 'excellent';
+            const incidentsClass = monthData.incidents > 0 ? 'danger' : 'excellent';
+            
+            const qualityPercent = monthData.quality || 0;
+            
+            card.innerHTML = `
+                <div class="employee-header">
+                    <div class="employee-avatar">
+                        <img src="${employee.avatar}" alt="${employee.name}">
+                    </div>
+                    <div class="employee-info">
+                        <h3>${employee.name}</h3>
+                        <p class="position">${employee.position}</p>
+                    </div>
+                </div>
+                
+                <div class="metrics-grid">
+                    <div class="metric">
+                        <div class="metric-label">Качество</div>
+                        <div class="metric-value ${qualityClass}">
+                            ${monthData.quality ? monthData.quality.toFixed(1) : '—'}
+                            <span class="metric-unit">%</span>
+                        </div>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: ${qualityPercent}%"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="metric">
+                        <div class="metric-label">Эффективность</div>
+                        <div class="metric-value ${efficiencyClass}">
+                            ${monthData.efficiency ? monthData.efficiency.toFixed(2) : '—'}
+                        </div>
+                    </div>
+                    
+                    <div class="metric">
+                        <div class="metric-label">Жалобы</div>
+                        <div class="metric-value ${complaintsClass}">
+                            ${monthData.complaints}
+                        </div>
+                    </div>
+                    
+                    <div class="metric">
+                        <div class="metric-label">Залёты</div>
+                        <div class="metric-value ${incidentsClass}">
+                            ${monthData.incidents}
+                            ${monthData.incidents_sum ? `<span class="metric-unit">(${monthData.incidents_sum.toFixed(1)}₽)</span>` : ''}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card-footer">
+                    <button onclick="viewDetails(${employee.id})" class="btn btn-secondary" style="flex: 1;">
+                        Подробнее
+                    </button>
+                    <button onclick="editPlan(${employee.id})" class="btn btn-orange" style="flex: 1;">
+                        План работы
+                    </button>
+                </div>
+            `;
+            
+            return card;
+        }
+        
+        function viewDetails(employeeId) {
+            window.location.href = `employee-history.html?id=${employeeId}`;
+        }
+        
+        function editPlan(employeeId) {
+            window.location.href = `plans.html?id=${employeeId}`;
+        }
+        
+        // Обработка изменения месяца
+        document.getElementById('monthSelect').addEventListener('change', loadEmployees);
+        
+        // Инициализация
+        loadEmployees();
+    </script>
+</body>
+</html>
