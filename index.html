@@ -1,47 +1,1036 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Вход - Система наставничества</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Наставничество — Smartway</title>
+<style>
+:root{
+  --bg:#F6F7F9; --card:#FFFFFF; --border:#E6E8EC; --border-2:#D7DAE0;
+  --text:#1A1D23; --text-2:#6B7280; --text-3:#9CA3AF;
+  --brand:#5B4FE9; --brand-soft:#EEECFE; --brand-2:#8B7FF0;
+  --ok:#12A150; --ok-soft:#E6F6EC;
+  --warn:#E08A00; --warn-soft:#FDF3E0;
+  --bad:#D63333; --bad-soft:#FCEAEA;
+  --r:12px; --r-sm:8px;
+  --sh:0 1px 2px rgba(16,24,40,.05), 0 1px 3px rgba(16,24,40,.04);
+  --sh-lg:0 8px 24px rgba(16,24,40,.10);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  background:var(--bg); color:var(--text); font-size:14px; line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+button{font-family:inherit;cursor:pointer;border:none;background:none}
+input,select,textarea{font-family:inherit;font-size:14px}
+a{color:var(--brand);text-decoration:none}
+a:hover{text-decoration:underline}
+
+/* ---------- Логин ---------- */
+#loginScreen{
+  min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+  background:linear-gradient(160deg,#F6F7F9 0%,#EDEBFC 100%);
+}
+.login-card{
+  background:var(--card);border:1px solid var(--border);border-radius:16px;
+  padding:40px;width:100%;max-width:400px;box-shadow:var(--sh-lg);
+}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.login-logo{
+  width:36px;height:36px;border-radius:10px;background:var(--brand);
+  display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:17px;
+}
+.login-brand h1{font-size:18px;font-weight:600;letter-spacing:-.2px}
+.login-sub{color:var(--text-2);font-size:13px;margin-bottom:28px}
+.field{margin-bottom:16px}
+.field label{display:block;font-size:13px;font-weight:500;margin-bottom:6px;color:var(--text)}
+.field input,.field select,.field textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border-2);border-radius:var(--r-sm);
+  background:#fff;color:var(--text);transition:border-color .15s,box-shadow .15s;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft);
+}
+.field textarea{resize:vertical;min-height:80px;line-height:1.55}
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:7px;
+  padding:10px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:500;
+  transition:background .15s,border-color .15s,box-shadow .15s;white-space:nowrap;
+}
+.btn-primary{background:var(--brand);color:#fff;width:100%}
+.btn-primary:hover{background:#4A3FD6}
+.btn-ghost{background:#fff;color:var(--text);border:1px solid var(--border-2)}
+.btn-ghost:hover{background:#F9FAFB;border-color:var(--text-3)}
+.btn-sm{padding:7px 12px;font-size:13px}
+.btn-danger{background:var(--bad-soft);color:var(--bad);border:1px solid #F5C9C9}
+.btn-danger:hover{background:#FADCDC}
+.err{color:var(--bad);font-size:13px;margin-top:12px;display:none}
+.hint{
+  margin-top:24px;padding:14px;background:var(--brand-soft);border-radius:var(--r-sm);
+  font-size:12px;color:#4A3FD6;line-height:1.7;
+}
+.hint b{display:block;margin-bottom:4px;font-size:12px}
+
+/* ---------- Каркас ---------- */
+#app{display:none}
+.shell{display:flex;min-height:100vh}
+.side{
+  width:236px;background:#fff;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;position:fixed;top:0;bottom:0;left:0;z-index:20;
+}
+.side-head{padding:18px 18px 14px;border-bottom:1px solid var(--border)}
+.side-brand{display:flex;align-items:center;gap:9px}
+.side-logo{
+  width:30px;height:30px;border-radius:8px;background:var(--brand);color:#fff;
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;
+}
+.side-brand span{font-weight:600;font-size:15px;letter-spacing:-.2px}
+.side-user{
+  margin-top:14px;padding:10px 12px;background:var(--bg);border-radius:var(--r-sm);
+}
+.side-user .nm{font-size:13px;font-weight:600}
+.side-user .rl{font-size:11.5px;color:var(--text-2);margin-top:1px}
+.side-body{flex:1;overflow-y:auto;padding:14px 12px}
+.side-label{
+  font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.05em;
+  color:var(--text-3);padding:0 8px;margin:14px 0 7px;
+}
+.side-label:first-child{margin-top:0}
+.nav{
+  display:flex;align-items:center;gap:9px;padding:9px 10px;border-radius:var(--r-sm);
+  color:var(--text-2);font-size:13.5px;font-weight:500;cursor:pointer;transition:background .12s,color .12s;
+  width:100%;text-align:left;
+}
+.nav:hover{background:var(--bg);color:var(--text)}
+.nav.on{background:var(--brand-soft);color:var(--brand);font-weight:600}
+.nav svg{width:17px;height:17px;flex-shrink:0}
+.side-foot{padding:12px;border-top:1px solid var(--border)}
+.side-foot .btn{width:100%}
+
+.main{margin-left:236px;flex:1;min-width:0}
+.top{
+  background:#fff;border-bottom:1px solid var(--border);padding:16px 28px;
+  display:flex;align-items:center;justify-content:space-between;gap:20px;position:sticky;top:0;z-index:10;
+}
+.top h2{font-size:17px;font-weight:600;letter-spacing:-.2px}
+.top p{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.month-pick{display:flex;align-items:center;gap:8px}
+.month-pick select{
+  padding:8px 12px;border:1px solid var(--border-2);border-radius:var(--r-sm);background:#fff;
+  font-size:13.5px;color:var(--text);min-width:160px;
+}
+.month-pick select:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.content{padding:24px 28px 60px;max-width:1400px}
+
+/* ---------- Общее ---------- */
+.sec-title{font-size:13px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin:0 0 12px}
+.grid-2{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px}
+.panel{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh)}
+.panel-head{
+  padding:16px 20px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;
+}
+.panel-head h3{font-size:15px;font-weight:600;letter-spacing:-.1px}
+.panel-body{padding:20px}
+.empty{padding:48px 20px;text-align:center;color:var(--text-3);font-size:13.5px}
+
+/* ---------- Карточка сотрудника ---------- */
+.emp-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.emp-top{padding:18px 20px;display:flex;align-items:center;gap:13px;border-bottom:1px solid var(--border)}
+.avatar{
+  width:44px;height:44px;border-radius:50%;flex-shrink:0;object-fit:cover;
+  background:var(--brand-soft);color:var(--brand);display:flex;align-items:center;justify-content:center;
+  font-weight:600;font-size:15px;
+}
+.emp-top .nm{font-size:15px;font-weight:600;letter-spacing:-.1px}
+.emp-top .rl{font-size:12.5px;color:var(--text-2);margin-top:1px}
+.emp-metrics{display:grid;grid-template-columns:1fr 1fr;gap:0}
+.metric{padding:15px 20px;border-bottom:1px solid var(--border);border-right:1px solid var(--border)}
+.metric:nth-child(2n){border-right:none}
+.metric:nth-last-child(-n+2){border-bottom:none}
+.metric .lb{font-size:11.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:5px}
+.metric .vl{font-size:22px;font-weight:600;letter-spacing:-.4px;display:flex;align-items:baseline;gap:4px}
+.metric .vl small{font-size:12px;font-weight:500;color:var(--text-2)}
+.v-ok{color:var(--ok)} .v-warn{color:var(--warn)} .v-bad{color:var(--bad)} .v-none{color:var(--text-3)}
+.bar{height:5px;background:var(--bg);border-radius:3px;margin-top:8px;overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;background:var(--brand);transition:width .3s}
+.bar i.ok{background:var(--ok)} .bar i.warn{background:var(--warn)} .bar i.bad{background:var(--bad)}
+.emp-foot{padding:13px 20px;display:flex;gap:9px;background:#FCFCFD}
+.emp-foot .btn{flex:1}
+
+/* ---------- Таблицы ---------- */
+.tw{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px;white-space:nowrap}
+thead th{
+  background:#FBFBFC;padding:10px 12px;text-align:left;font-size:11.5px;font-weight:600;
+  color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;border-bottom:1px solid var(--border);
+  position:sticky;top:0;
+}
+thead tr.grp th{text-align:center;background:#F6F7F9;border-bottom:1px solid var(--border);color:var(--text);font-size:12px;text-transform:none;letter-spacing:0}
+thead tr.sub th{top:37px;font-size:11px}
+tbody td{padding:11px 12px;border-bottom:1px solid #F1F2F4;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#FBFBFC}
+td.num{text-align:center;font-variant-numeric:tabular-nums}
+th.c,td.c{text-align:center}
+.cell-name{font-weight:600;color:var(--text)}
+.sticky-1{position:sticky;left:0;background:#fff;z-index:2;border-right:1px solid var(--border)}
+.sticky-2{position:sticky;left:190px;background:#fff;z-index:2;border-right:1px solid var(--border)}
+tr:hover .sticky-1,tr:hover .sticky-2{background:#FBFBFC}
+.pill{
+  display:inline-block;padding:2px 8px;border-radius:20px;font-size:11.5px;font-weight:600;
+  font-variant-numeric:tabular-nums;
+}
+.p-ok{background:var(--ok-soft);color:var(--ok)}
+.p-warn{background:var(--warn-soft);color:var(--warn)}
+.p-bad{background:var(--bad-soft);color:var(--bad)}
+.p-none{background:#F3F4F6;color:var(--text-3)}
+.badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.b-ok{background:var(--ok-soft);color:var(--ok)}
+.b-warn{background:var(--warn-soft);color:var(--warn)}
+.b-brand{background:var(--brand-soft);color:var(--brand)}
+.legend{padding:12px 20px;border-top:1px solid var(--border);background:#FBFBFC;font-size:12px;color:var(--text-2)}
+
+/* ---------- Профиль сотрудника ---------- */
+.prof{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);padding:22px;display:flex;gap:18px;flex-wrap:wrap}
+.prof .avatar{width:64px;height:64px;font-size:22px}
+.prof-main{flex:1;min-width:240px}
+.prof-main h3{font-size:20px;font-weight:600;letter-spacing:-.3px}
+.prof-meta{display:flex;gap:18px;flex-wrap:wrap;color:var(--text-2);font-size:13px;margin-top:6px}
+.prof-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:16px;width:100%}
+.pstat{background:var(--bg);border:1px solid var(--border);border-radius:var(--r-sm);padding:12px 14px}
+.pstat .lb{font-size:11px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+.pstat .vl{font-size:20px;font-weight:600;letter-spacing:-.3px}
+
+/* ---------- Таймлайн ---------- */
+.tl{position:relative;padding-left:26px}
+.tl::before{content:'';position:absolute;left:5px;top:8px;bottom:8px;width:2px;background:var(--border);border-radius:2px}
+.tl-item{position:relative;margin-bottom:14px}
+.tl-item::before{
+  content:'';position:absolute;left:-26px;top:16px;width:12px;height:12px;border-radius:50%;
+  background:#fff;border:2.5px solid var(--brand);
+}
+.tl-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tl-head{padding:13px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;border-bottom:1px solid var(--border);flex-wrap:wrap}
+.tl-head h4{font-size:14.5px;font-weight:600}
+.tl-metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:0}
+.tl-metric{padding:12px 18px;border-right:1px solid var(--border)}
+.tl-metric:last-child{border-right:none}
+.tl-metric .lb{font-size:11px;color:var(--text-2);font-weight:500;margin-bottom:3px}
+.tl-metric .vl{font-size:16px;font-weight:600;letter-spacing:-.2px}
+.weeks{border-top:1px solid var(--border);background:#FCFCFD;padding:14px 18px}
+.weeks-lb{font-size:11.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px}
+.wk{background:#fff;border:1px solid var(--border);border-radius:var(--r-sm);padding:11px 14px;margin-bottom:9px}
+.wk:last-child{margin-bottom:0}
+.wk-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;flex-wrap:wrap}
+.wk-date{font-size:12.5px;font-weight:600;color:var(--brand)}
+.wk-vals{display:flex;gap:16px;flex-wrap:wrap;font-size:12.5px;color:var(--text-2)}
+.wk-vals b{color:var(--text);font-weight:600}
+.wk-note{
+  margin-top:9px;padding:9px 12px;background:var(--bg);border-left:3px solid var(--brand-2);
+  border-radius:0 var(--r-sm) var(--r-sm) 0;font-size:12.5px;color:var(--text-2);line-height:1.55;
+}
+.wk-note.empty-note{background:#FBFBFC;border-left-color:var(--border-2);color:var(--text-3);font-style:italic}
+.wk-edit{margin-top:9px}
+.wk-edit textarea{
+  width:100%;padding:8px 10px;border:1px solid var(--border-2);border-radius:var(--r-sm);
+  font-size:12.5px;min-height:52px;resize:vertical;
+}
+.wk-edit textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+
+/* ---------- Планы ---------- */
+.plan-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);margin-bottom:16px;overflow:hidden}
+.plan-head{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.plan-head h3{font-size:15px;font-weight:600}
+.plan-head .wl{font-size:12.5px;color:var(--text-2);margin-top:2px}
+.plan-body{padding:20px;display:grid;gap:16px}
+.plan-block .lb{font-size:11.5px;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:6px}
+.plan-block .txt{font-size:13.5px;line-height:1.65;white-space:pre-line;color:var(--text)}
+.plan-block .txt.muted{color:var(--text-3);font-style:italic}
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.tag{background:var(--brand-soft);color:var(--brand);padding:4px 10px;border-radius:20px;font-size:12px;font-weight:500}
+.link-list{display:flex;flex-direction:column;gap:6px}
+.link-item{display:flex;gap:8px;align-items:center}
+.link-item input{flex:1;padding:8px 11px;border:1px solid var(--border-2);border-radius:var(--r-sm);font-size:13px}
+.link-item input:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+.icon-btn{
+  width:34px;height:34px;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;
+  border:1px solid var(--border-2);background:#fff;color:var(--text-2);flex-shrink:0;transition:.15s;
+}
+.icon-btn:hover{background:var(--bad-soft);color:var(--bad);border-color:#F5C9C9}
+.add-link{
+  margin-top:7px;padding:8px 12px;border:1px dashed var(--border-2);border-radius:var(--r-sm);
+  background:#fff;color:var(--text-2);font-size:13px;font-weight:500;width:100%;transition:.15s;
+}
+.add-link:hover{border-color:var(--brand);color:var(--brand);background:var(--brand-soft)}
+.frow{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px}
+.plan-actions{padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:9px;justify-content:flex-end;background:#FCFCFD;flex-wrap:wrap}
+
+/* ---------- Уведомления ---------- */
+.toast{
+  position:fixed;bottom:24px;right:24px;background:#1A1D23;color:#fff;padding:12px 18px;
+  border-radius:var(--r-sm);font-size:13.5px;box-shadow:var(--sh-lg);z-index:100;
+  opacity:0;transform:translateY(12px);transition:.25s;pointer-events:none;
+}
+.toast.show{opacity:1;transform:translateY(0)}
+
+/* ---------- Адаптив ---------- */
+@media(max-width:900px){
+  .side{transform:translateX(-100%);transition:transform .25s}
+  .side.open{transform:translateX(0)}
+  .main{margin-left:0}
+  .content{padding:16px 16px 50px}
+  .top{padding:14px 16px;flex-wrap:wrap}
+  .menu-btn{display:flex!important}
+  .metric .vl{font-size:19px}
+}
+.menu-btn{
+  display:none;width:36px;height:36px;border:1px solid var(--border-2);border-radius:var(--r-sm);
+  align-items:center;justify-content:center;background:#fff;margin-right:4px;
+}
+.top-left{display:flex;align-items:center;gap:10px}
+</style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-box">
-            <div class="login-logo">
-                <h1>🎯 Система наставничества</h1>
-                <p>Управление развитием сотрудников</p>
-            </div>
-            
-            <form id="loginForm">
-                <div class="form-group">
-                    <label for="username">Логин</label>
-                    <input type="text" id="username" name="username" placeholder="Введите логин" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="password">Пароль</label>
-                    <input type="password" id="password" name="password" placeholder="Введите пароль" required>
-                </div>
-                
-                <button type="submit" class="btn btn-primary">
-                    Войти
-                </button>
-            </form>
-            
-            <div id="error-message" style="margin-top: 1rem; color: #EF4444; font-size: 0.875rem; display: none;"></div>
-            
-            <div style="margin-top: 2rem; padding: 1rem; background: rgba(34, 211, 238, 0.1); border-radius: 8px; border: 1px solid rgba(34, 211, 238, 0.2);">
-                <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 0.5rem;"><strong>Тестовые аккаунты:</strong></p>
-                <p style="font-size: 0.75rem; color: var(--text-secondary);">👤 admin / admin123 (Админ)</p>
-                <p style="font-size: 0.75rem; color: var(--text-secondary);">👤 bordakova / vs123 (ВС)</p>
-            </div>
-        </div>
-    </div>
 
-    <script src="js/auth.js"></script>
+<!-- ============ ЛОГИН ============ -->
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-brand">
+      <div class="login-logo">SW</div>
+      <h1>Наставничество</h1>
+    </div>
+    <p class="login-sub">Система контроля и развития сотрудников</p>
+    <form id="loginForm">
+      <div class="field">
+        <label for="u">Логин</label>
+        <input type="text" id="u" autocomplete="username" placeholder="Введите логин" required>
+      </div>
+      <div class="field">
+        <label for="p">Пароль</label>
+        <input type="password" id="p" autocomplete="current-password" placeholder="Введите пароль" required>
+      </div>
+      <button type="submit" class="btn btn-primary">Войти</button>
+    </form>
+    <div class="err" id="loginErr"></div>
+    <div class="hint">
+      <b>Демо-доступ</b>
+      Администратор: <code>admin</code> / <code>admin123</code><br>
+      Ведущий: <code>bordakova</code> / <code>vs123</code>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ПРИЛОЖЕНИЕ ============ -->
+<div id="app">
+  <div class="shell">
+    <aside class="side" id="side">
+      <div class="side-head">
+        <div class="side-brand">
+          <div class="side-logo">SW</div>
+          <span>Наставничество</span>
+        </div>
+        <div class="side-user">
+          <div class="nm" id="uName">—</div>
+          <div class="rl" id="uRole">—</div>
+        </div>
+      </div>
+      <div class="side-body">
+        <div class="side-label">Период</div>
+        <div class="field" style="margin:0">
+          <select id="monthSel"></select>
+        </div>
+        <div class="side-label" style="margin-top:16px">Разделы</div>
+        <button class="nav on" data-page="dashboard">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l9-9 9 9M5 10v10a1 1 0 001 1h3a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1h3a1 1 0 001-1V10"/></svg>
+          Главная
+        </button>
+        <button class="nav" data-page="metrics">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          Показатели
+        </button>
+        <button class="nav" data-page="plans">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          План и результат
+        </button>
+        <button class="nav" data-page="history">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          История сотрудников
+        </button>
+        <div class="side-label" style="margin-top:16px">Управление</div>
+        <button class="nav" data-page="users" id="navUsers">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+          Пользователи
+        </button>
+      </div>
+      <div class="side-foot">
+        <button class="btn btn-ghost btn-sm" id="logoutBtn">
+          <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:15px;height:15px"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          Выйти
+        </button>
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="top">
+        <div class="top-left">
+          <button class="menu-btn" id="menuBtn">
+            <svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:18px;height:18px"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          </button>
+          <div>
+            <h2 id="pageTitle">Главная</h2>
+            <p id="pageSub">—</p>
+          </div>
+        </div>
+      </div>
+      <div class="content" id="view"></div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   ДАННЫЕ (загружены из вашей таблицы за 13 месяцев)
+   ============================================================ */
+const DB = {"2025-09": {"label": "Сентябрь 2025", "weeks": ["01.09-05.09", "08.09-12.09", "15.09-19.09", "22.09-26.09"], "employees": [{"vs": "Бордакова", "name": "Ахтямова Алия", "position": "Специалист", "quality": 96.54, "efficiency": 3.02, "complaints": 1, "incidents_sum": 195.6, "incidents": 1, "weeks": [{"week": "01.09-05.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.09-12.09", "quality": 77.5, "efficiency": 3.77, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.09-19.09", "quality": 86.3, "efficiency": 4.35, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.09-26.09", "quality": 100.0, "efficiency": 3.61, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Пивкин Ярослав", "position": "Младший специалист", "quality": 86.83, "efficiency": 2.25, "complaints": 0, "incidents_sum": 1130.4, "incidents": 2, "weeks": [{"week": "01.09-05.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.09-12.09", "quality": 77.3, "efficiency": 1.9, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.09-19.09", "quality": 95.8, "efficiency": 2.77, "complaints": 1, "incidents": 1, "note": null}, {"week": "22.09-26.09", "quality": 79.8, "efficiency": 2.03, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мальков Артём", "position": "Младший специалист", "quality": 92.59, "efficiency": 1.67, "complaints": 0, "incidents_sum": 259.0, "incidents": 1, "weeks": [{"week": "01.09-05.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.09-12.09", "quality": 100.0, "efficiency": 3.39, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.09-19.09", "quality": 102.0, "efficiency": 3.74, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.09-26.09", "quality": 99.3, "efficiency": 2.98, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Жукова Ольга", "position": "Младший специалист", "quality": 84.1, "efficiency": 1.02, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.09-05.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.09-12.09", "quality": 73.2, "efficiency": 3.04, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.09-19.09", "quality": 95.5, "efficiency": 3.07, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.09-26.09", "quality": 92.0, "efficiency": 3.38, "complaints": 0, "incidents": 0, "note": null}]}]}, "2025-10": {"label": "Октябрь 2025", "weeks": ["01.10-05.10", "06.10-12.10", "13.10-19.10", "20.10-26.10"], "employees": [{"vs": "Бордакова", "name": "Буданова Диана", "position": "Специалист", "quality": 96.81, "efficiency": 3.1, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.10-05.10", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.10-12.10", "quality": 96.3, "efficiency": 3.03, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.10-19.10", "quality": 98.1, "efficiency": 3.62, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.10-26.10", "quality": 97.9, "efficiency": 4.72, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Пивкин Ярослав", "position": "Младший специалист", "quality": 85.3, "efficiency": 2.78, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.10-05.10", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.10-12.10", "quality": 100.0, "efficiency": 2.03, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.10-19.10", "quality": 90.3, "efficiency": 2.67, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.10-26.10", "quality": 93.9, "efficiency": 3.61, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мальков Артём", "position": "Младший специалист", "quality": 92.42, "efficiency": 2.28, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.10-05.10", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.10-12.10", "quality": 40.0, "efficiency": 3.39, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.10-19.10", "quality": 80.0, "efficiency": 3.67, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.10-26.10", "quality": 100.0, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Горина Анастасия", "position": "Специалист", "quality": 91.38, "efficiency": 2.52, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.10-05.10", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.10-12.10", "quality": 71.4, "efficiency": 3.99, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.10-19.10", "quality": 75.2, "efficiency": 5.31, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.10-26.10", "quality": 49.0, "efficiency": 5.15, "complaints": 0, "incidents": 0, "note": null}]}]}, "2025-11": {"label": "Ноябрь 2025", "weeks": ["05.11 - 09.11", "10.11 - 16.11", "17.11 - 23.11", "24.11 - 30.11"], "employees": [{"vs": "Бордакова", "name": "Горина Анастасия", "position": "Специалист", "quality": 89.94, "efficiency": 2.27, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "05.11 - 09.11", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.11 - 16.11", "quality": 100.0, "efficiency": 3.53, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.11 - 23.11", "quality": 100.0, "efficiency": 4.32, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.11 - 30.11", "quality": 100.0, "efficiency": 4.37, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Абдуллаев Самир", "position": "Специалист", "quality": 95.25, "efficiency": 2.6, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "05.11 - 09.11", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.11 - 16.11", "quality": 100.0, "efficiency": 3.9, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.11 - 23.11", "quality": 98.8, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}, {"week": "24.11 - 30.11", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Козлова Анастасия", "position": "Специалист", "quality": 80.54, "efficiency": 2.48, "complaints": 1, "incidents_sum": 1060.0, "incidents": 2, "weeks": [{"week": "05.11 - 09.11", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.11 - 16.11", "quality": 100.0, "efficiency": 3.57, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.11 - 23.11", "quality": 100.0, "efficiency": 2.56, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.11 - 30.11", "quality": 66.7, "efficiency": 4.78, "complaints": 2, "incidents": 1, "note": null}]}, {"vs": "Жнякина", "name": "Миронова Светлана", "position": "Специалист", "quality": 95.82, "efficiency": 3.72, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "05.11 - 09.11", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.11 - 16.11", "quality": 100.0, "efficiency": 4.32, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.11 - 23.11", "quality": 91.5, "efficiency": 4.01, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.11 - 30.11", "quality": 94.8, "efficiency": 5.06, "complaints": 0, "incidents": 0, "note": null}]}]}, "2025-12": {"label": "Декабрь 2025", "weeks": ["01.12 - 07.12", "08.12 - 14.12", "15.12 - 21.12", "22.12 - 28.12"], "employees": [{"vs": "Бордакова", "name": "Покаместова Юлия", "position": "Младший специалист", "quality": 97.6, "efficiency": 2.52, "complaints": 0, "incidents_sum": 572.0, "incidents": 2, "weeks": [{"week": "01.12 - 07.12", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.12 - 14.12", "quality": 85.71, "efficiency": 4.13, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.12 - 21.12", "quality": 91.25, "efficiency": 3.99, "complaints": 0, "incidents": 1, "note": null}, {"week": "22.12 - 28.12", "quality": 100.0, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}]}, {"vs": "Бордакова", "name": "Спиренкова Валерия", "position": "Специалист", "quality": 87.23, "efficiency": 3.58, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.12 - 07.12", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.12 - 14.12", "quality": 80.0, "efficiency": 3.84, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.12 - 21.12", "quality": 95.0, "efficiency": 3.87, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.12 - 28.12", "quality": 96.88, "efficiency": 3.4, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-01": {"label": "Январь 2026", "weeks": ["12.01 - 18.01", "19.01 - 25.01", "26.01 - 31.01"], "employees": [{"vs": "Бордакова", "name": "Покаместова Юлия", "position": "Специалист", "quality": 90.23, "efficiency": 3.19, "complaints": 0, "incidents_sum": 1388.47, "incidents": 2, "weeks": [{"week": "12.01 - 18.01", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "19.01 - 25.01", "quality": 100.0, "efficiency": 2.95, "complaints": 1, "incidents": 0, "note": null}, {"week": "26.01 - 31.01", "quality": 98.0, "efficiency": 3.11, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Карнаухова Анастасия", "position": "Специалист", "quality": 92.47, "efficiency": 3.33, "complaints": 0, "incidents_sum": 256.0, "incidents": 1, "weeks": [{"week": "12.01 - 18.01", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "19.01 - 25.01", "quality": 82.5, "efficiency": 3.68, "complaints": 0, "incidents": 0, "note": null}, {"week": "26.01 - 31.01", "quality": 81.17, "efficiency": 3.54, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мартьянова Анастасия", "position": "Специалист", "quality": null, "efficiency": null, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "12.01 - 18.01", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "19.01 - 25.01", "quality": 100.0, "efficiency": 1.99, "complaints": 0, "incidents": 0, "note": null}, {"week": "26.01 - 31.01", "quality": 80.0, "efficiency": 1.89, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Рузиева Альбина", "position": "Специалист", "quality": null, "efficiency": null, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "12.01 - 18.01", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "19.01 - 25.01", "quality": 100.0, "efficiency": 1.62, "complaints": 0, "incidents": 0, "note": null}, {"week": "26.01 - 31.01", "quality": 75.0, "efficiency": 1.44, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-02": {"label": "Февраль 2026", "weeks": ["01.02-08.02", "09.02-15.02", "16.02- 22.02", "23.02-28.02"], "employees": [{"vs": "Бордакова", "name": "Жукова Оля", "position": "Специалист", "quality": 87.16, "efficiency": 2.92, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.02-08.02", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "09.02-15.02", "quality": 97.71, "efficiency": 3.04, "complaints": 0, "incidents": 0, "note": null}, {"week": "16.02- 22.02", "quality": 86.9, "efficiency": 2.91, "complaints": 0, "incidents": 0, "note": null}, {"week": "23.02-28.02", "quality": 81.6, "efficiency": 3.6, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Карнаухова Анастасия", "position": "Специалист", "quality": 98.0, "efficiency": 3.9, "complaints": 0, "incidents_sum": 2475.0, "incidents": 1, "weeks": [{"week": "01.02-08.02", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "09.02-15.02", "quality": 50.0, "efficiency": null, "complaints": 0, "incidents": 0, "note": "отпуск"}, {"week": "16.02- 22.02", "quality": 98.4, "efficiency": 3.69, "complaints": 0, "incidents": 0, "note": null}, {"week": "23.02-28.02", "quality": 101.4, "efficiency": 3.57, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Пивкин Ярослав", "position": "Младший спец.", "quality": 88.76, "efficiency": 2.71, "complaints": 0, "incidents_sum": 0, "incidents": 1, "weeks": [{"week": "01.02-08.02", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "09.02-15.02", "quality": 91.7, "efficiency": 3.43, "complaints": 0, "incidents": 0, "note": null}, {"week": "16.02- 22.02", "quality": 94.8, "efficiency": 3.87, "complaints": 0, "incidents": 0, "note": null}, {"week": "23.02-28.02", "quality": 75.0, "efficiency": 4.09, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Жаренова Наташа", "position": "Специалист", "quality": 91.38, "efficiency": 3.88, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.02-08.02", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "09.02-15.02", "quality": 98.9, "efficiency": 5.06, "complaints": 0, "incidents": 0, "note": null}, {"week": "16.02- 22.02", "quality": 100.0, "efficiency": 5.84, "complaints": 0, "incidents": 0, "note": null}, {"week": "23.02-28.02", "quality": 100.0, "efficiency": 5.04, "complaints": 1, "incidents": 0, "note": null}]}]}, "2026-03": {"label": "Март 2026", "weeks": [], "employees": [{"vs": "Жнякина", "name": "Пивкин Ярослав", "position": "Младший спец.", "quality": 86.67, "efficiency": 3.14, "complaints": 2, "incidents_sum": 0, "incidents": 3, "weeks": []}, {"vs": "Жнякина", "name": "Шапошникова Валерия", "position": "Специалист", "quality": 92.8, "efficiency": 3.63, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": []}]}, "2026-04": {"label": "Апрель 2026", "weeks": ["01.04-05.04", "06.04-12.04", "13.04-19.04", "20.04-26.04", "27.04-30.04"], "employees": [{"vs": "Бордакова", "name": "Шапошникова Валерия", "position": "Специалист", "quality": 87.5, "efficiency": 3.04, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.04-05.04", "quality": 100.0, "efficiency": 3.47, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.04-12.04", "quality": 93.33, "efficiency": 3.61, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.04-19.04", "quality": 100.0, "efficiency": 3.64, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.04-26.04", "quality": 95.25, "efficiency": 3.64, "complaints": 0, "incidents": 0, "note": null}, {"week": "27.04-30.04", "quality": 73.75, "efficiency": 3.31, "complaints": 1, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Козлова Анастасия", "position": "Специалист", "quality": 89.42, "efficiency": 2.83, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.04-05.04", "quality": 100.0, "efficiency": 3.15, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.04-12.04", "quality": 77.0, "efficiency": 3.16, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.04-19.04", "quality": 85.71, "efficiency": 3.53, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.04-26.04", "quality": 100.0, "efficiency": 3.51, "complaints": 0, "incidents": 1, "note": null}, {"week": "27.04-30.04", "quality": 100.0, "efficiency": 3.49, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Кичатов Евгений", "position": "Специалист", "quality": null, "efficiency": null, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.04-05.04", "quality": 100.0, "efficiency": 1.86, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.04-12.04", "quality": 97.5, "efficiency": 1.84, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.04-19.04", "quality": 98.9, "efficiency": 1.93, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.04-26.04", "quality": 100.0, "efficiency": 2.03, "complaints": 0, "incidents": 0, "note": null}, {"week": "27.04-30.04", "quality": 100.0, "efficiency": 2.23, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-05": {"label": "Май 2026", "weeks": ["01.05-03.05", "04.05-10.05", "11.05-17.05", "18.05-24.05", "25.05-31.05"], "employees": [{"vs": "Бордакова", "name": "Шапошникова Валерия", "position": "Специалист", "quality": 81.69, "efficiency": 3.23, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.05-03.05", "quality": null, "efficiency": 1.27, "complaints": 0, "incidents": 0, "note": null}, {"week": "04.05-10.05", "quality": 89.5, "efficiency": 3.08, "complaints": 0, "incidents": 0, "note": null}, {"week": "11.05-17.05", "quality": 97.86, "efficiency": 3.89, "complaints": 0, "incidents": 1, "note": null}, {"week": "18.05-24.05", "quality": 85.33, "efficiency": null, "complaints": 1, "incidents": 0, "note": "БЛ"}, {"week": "25.05-31.05", "quality": 95.0, "efficiency": 4.6, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Жукова Ольга", "position": "Специалист", "quality": 86.23, "efficiency": 3.21, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.05-03.05", "quality": null, "efficiency": 0.57, "complaints": 0, "incidents": 0, "note": null}, {"week": "04.05-10.05", "quality": 81.0, "efficiency": 3.16, "complaints": 0, "incidents": 0, "note": null}, {"week": "11.05-17.05", "quality": 66.67, "efficiency": 4.06, "complaints": 0, "incidents": 0, "note": null}, {"week": "18.05-24.05", "quality": 94.67, "efficiency": 3.92, "complaints": 0, "incidents": 0, "note": null}, {"week": "25.05-31.05", "quality": 75.0, "efficiency": 4.07, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Каргин Андрей", "position": "Специалист", "quality": null, "efficiency": null, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.05-03.05", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "04.05-10.05", "quality": null, "efficiency": 0.1, "complaints": 0, "incidents": 0, "note": null}, {"week": "11.05-17.05", "quality": null, "efficiency": 0.96, "complaints": 0, "incidents": 0, "note": null}, {"week": "18.05-24.05", "quality": 98.9, "efficiency": 1.22, "complaints": 0, "incidents": 0, "note": null}, {"week": "25.05-31.05", "quality": 100.0, "efficiency": 1.24, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мартьянова Анастасия", "position": "Младший", "quality": 97.67, "efficiency": 1.68, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.05-03.05", "quality": 100.0, "efficiency": 1.63, "complaints": 0, "incidents": 0, "note": null}, {"week": "04.05-10.05", "quality": 87.5, "efficiency": 3.22, "complaints": 0, "incidents": 0, "note": null}, {"week": "11.05-17.05", "quality": 100.0, "efficiency": 3.88, "complaints": 0, "incidents": 0, "note": null}, {"week": "18.05-24.05", "quality": 95.6, "efficiency": 2.64, "complaints": 0, "incidents": 0, "note": null}, {"week": "25.05-31.05", "quality": 50.0, "efficiency": 4.12, "complaints": 1, "incidents": 0, "note": null}]}]}, "2026-06": {"label": "Июнь 2026", "weeks": ["01.06 - 07.06", "08.06 - 14.06", "15.06 - 21.06.", "22.06- 28.06.", "29.06 - 30.06"], "employees": [{"vs": "Бордакова", "name": "Тихомиров Кирилл", "position": "Специалист", "quality": 99.4, "efficiency": 3.73, "complaints": 0, "incidents_sum": 0, "incidents": 2, "weeks": [{"week": "01.06 - 07.06", "quality": 100.0, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}, {"week": "08.06 - 14.06", "quality": 0.0, "efficiency": null, "complaints": 1, "incidents": 0, "note": null}, {"week": "15.06 - 21.06.", "quality": 100.0, "efficiency": 4.15, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.06- 28.06.", "quality": 97.0, "efficiency": 4.44, "complaints": 1, "incidents": 0, "note": null}, {"week": "29.06 - 30.06", "quality": 99.0, "efficiency": 4.43, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Жукова Ольга", "position": "Специалист", "quality": 90.43, "efficiency": 3.68, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.06 - 07.06", "quality": 95.0, "efficiency": 3.7, "complaints": 0, "incidents": 0, "note": null}, {"week": "08.06 - 14.06", "quality": 101.3, "efficiency": 4.18, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.06 - 21.06.", "quality": 95.8, "efficiency": 3.81, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.06- 28.06.", "quality": 94.3, "efficiency": 4.64, "complaints": 0, "incidents": 0, "note": null}, {"week": "29.06 - 30.06", "quality": 98.3, "efficiency": 4.02, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Ярослав Пивкин", "position": "Специалист", "quality": 93.23, "efficiency": 3.66, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.06 - 07.06", "quality": 93.6, "efficiency": 2.97, "complaints": 1, "incidents": 0, "note": null}, {"week": "08.06 - 14.06", "quality": 100.0, "efficiency": 4.0, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.06 - 21.06.", "quality": 100.0, "efficiency": 3.24, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.06- 28.06.", "quality": 100.0, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}, {"week": "29.06 - 30.06", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Козлова Настя", "position": "Специалист", "quality": 88.31, "efficiency": 3.65, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.06 - 07.06", "quality": 100.5, "efficiency": 3.12, "complaints": 2, "incidents": 1, "note": null}, {"week": "08.06 - 14.06", "quality": 100.0, "efficiency": 3.79, "complaints": 0, "incidents": 0, "note": null}, {"week": "15.06 - 21.06.", "quality": 60.0, "efficiency": 3.83, "complaints": 0, "incidents": 0, "note": null}, {"week": "22.06- 28.06.", "quality": 84.2, "efficiency": 4.38, "complaints": 0, "incidents": 0, "note": null}, {"week": "29.06 - 30.06", "quality": 100.0, "efficiency": 5.03, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-07": {"label": "Июль 2026", "weeks": ["01.07 - 05.07", "06.07 - 12.07", "13.07 - 19.07", "20.07 - 26.07", "27.07 - 31.07"], "employees": [{"vs": "Бордакова", "name": "Тихомиров Кирилл", "position": "Специалист", "quality": 95.91, "efficiency": 3.78, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.07 - 05.07", "quality": 100.0, "efficiency": 4.54, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.07 - 12.07", "quality": 98.0, "efficiency": 3.92, "complaints": 1, "incidents": 1, "note": null}, {"week": "13.07 - 19.07", "quality": 84.6, "efficiency": 3.94, "complaints": 0, "incidents": 1, "note": null}, {"week": "20.07 - 26.07", "quality": 90.5, "efficiency": 4.07, "complaints": 0, "incidents": 1, "note": null}, {"week": "27.07 - 31.07", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Горина Анастасия", "position": "Специалист", "quality": 97.12, "efficiency": 3.87, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.07 - 05.07", "quality": 81.7, "efficiency": 3.13, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.07 - 12.07", "quality": 95.0, "efficiency": 3.55, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.07 - 19.07", "quality": 89.4, "efficiency": 3.71, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.07 - 26.07", "quality": 98.2, "efficiency": 3.86, "complaints": 0, "incidents": 0, "note": null}, {"week": "27.07 - 31.07", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Ярослав Пивкин", "position": "Специалист", "quality": 89.15, "efficiency": 3.98, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.07 - 05.07", "quality": 0.0, "efficiency": null, "complaints": 0, "incidents": 1, "note": "Отпуск"}, {"week": "06.07 - 12.07", "quality": 100.0, "efficiency": 3.27, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.07 - 19.07", "quality": 90.0, "efficiency": 2.8, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.07 - 26.07", "quality": 100.0, "efficiency": 2.87, "complaints": 0, "incidents": 1, "note": null}, {"week": "27.07 - 31.07", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Миронова Светлана", "position": "Специалист", "quality": 95.59, "efficiency": 3.67, "complaints": 0, "incidents_sum": 0, "incidents": 1, "weeks": [{"week": "01.07 - 05.07", "quality": 100.0, "efficiency": 4.25, "complaints": 0, "incidents": 0, "note": null}, {"week": "06.07 - 12.07", "quality": 98.4, "efficiency": 4.16, "complaints": 0, "incidents": 0, "note": null}, {"week": "13.07 - 19.07", "quality": 100.0, "efficiency": 4.25, "complaints": 0, "incidents": 0, "note": null}, {"week": "20.07 - 26.07", "quality": 100.0, "efficiency": 3.45, "complaints": 0, "incidents": 0, "note": null}, {"week": "27.07 - 31.07", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-08": {"label": "Август 2026", "weeks": ["01.08 - 02.08", "03.08 - 09.08", "10.08 - 16.08", "17.08 - 23.08", "24.08 - 31.08"], "employees": [{"vs": "Бордакова", "name": "Тихомиров Кирилл", "position": "Специалист", "quality": 88.75, "efficiency": 4.16, "complaints": 1, "incidents_sum": 0, "incidents": 1, "weeks": [{"week": "01.08 - 02.08", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "03.08 - 09.08", "quality": 99.5, "efficiency": 4.24, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.08 - 16.08", "quality": 100.0, "efficiency": 4.66, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.08 - 23.08", "quality": 93.5, "efficiency": 5.06, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.08 - 31.08", "quality": 91.7, "efficiency": 4.37, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Покаместова Юля", "position": "Специалист", "quality": 86.24, "efficiency": 3.75, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.08 - 02.08", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "03.08 - 09.08", "quality": 75.2, "efficiency": 3.33, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.08 - 16.08", "quality": 78.4, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}, {"week": "17.08 - 23.08", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.08 - 31.08", "quality": 96.7, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мартьянова Анастасия", "position": "Младший специалист", "quality": 87.23, "efficiency": 3.02, "complaints": 1, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.08 - 02.08", "quality": null, "efficiency": 2.81, "complaints": 0, "incidents": 0, "note": null}, {"week": "03.08 - 09.08", "quality": 70.3, "efficiency": 2.85, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.08 - 16.08", "quality": 97.9, "efficiency": 3.56, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.08 - 23.08", "quality": 96.9, "efficiency": 3.12, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.08 - 31.08", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Абдуллаев Самир", "position": "Специалист", "quality": 99.61, "efficiency": 3.6, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.08 - 02.08", "quality": null, "efficiency": 3.09, "complaints": 0, "incidents": 0, "note": null}, {"week": "03.08 - 09.08", "quality": 100.0, "efficiency": 3.85, "complaints": 0, "incidents": 0, "note": null}, {"week": "10.08 - 16.08", "quality": 94.6, "efficiency": 2.33, "complaints": 0, "incidents": 0, "note": null}, {"week": "17.08 - 23.08", "quality": 90.5, "efficiency": 3.58, "complaints": 0, "incidents": 0, "note": null}, {"week": "24.08 - 31.08", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}]}, "2026-09": {"label": "Сентябрь 2026", "weeks": ["01.09 - 06.09", "07.09 - 13.09", "14.09 - 20.09", "21.09 - 27.09", "28.09 - 30.09"], "employees": [{"vs": "Бордакова", "name": "Абдуллаев Самир", "position": "Специалист", "quality": 90.97, "efficiency": 3.76, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.09 - 06.09", "quality": 95.4, "efficiency": 4.17, "complaints": 1, "incidents": 1, "note": null}, {"week": "07.09 - 13.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": "Отпуск"}, {"week": "14.09 - 20.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "21.09 - 27.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "28.09 - 30.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Бордакова", "name": "Покаместова Юля", "position": "Специалист", "quality": 94.64, "efficiency": 3.92, "complaints": 1, "incidents_sum": 0, "incidents": 2, "weeks": [{"week": "01.09 - 06.09", "quality": 100.0, "efficiency": 3.42, "complaints": 0, "incidents": 0, "note": null}, {"week": "07.09 - 13.09", "quality": 97.7, "efficiency": 3.94, "complaints": 0, "incidents": 0, "note": null}, {"week": "14.09 - 20.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "21.09 - 27.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "28.09 - 30.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Мартьянова Анастасия", "position": "Младший специалист", "quality": 91.21, "efficiency": 3.02, "complaints": 0, "incidents_sum": 0, "incidents": 1, "weeks": [{"week": "01.09 - 06.09", "quality": 92.1, "efficiency": 4.18, "complaints": 0, "incidents": 0, "note": null}, {"week": "07.09 - 13.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "14.09 - 20.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "21.09 - 27.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "28.09 - 30.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}, {"vs": "Жнякина", "name": "Савкин Илья", "position": "Специалист", "quality": null, "efficiency": null, "complaints": 0, "incidents_sum": 0, "incidents": 0, "weeks": [{"week": "01.09 - 06.09", "quality": 100.0, "efficiency": 1.49, "complaints": 0, "incidents": 0, "note": null}, {"week": "07.09 - 13.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "14.09 - 20.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "21.09 - 27.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}, {"week": "28.09 - 30.09", "quality": null, "efficiency": null, "complaints": 0, "incidents": 0, "note": null}]}]}};
+
+/* Пользователи системы */
+let USERS = [{"id": 1, "username": "admin", "password": "admin123", "name": "Администратор", "firstname": "Админ", "lastname": "Система", "role": "admin"}, {"id": 2, "username": "bordakova", "password": "vs123", "name": "Бордакова Василина", "firstname": "Василина", "lastname": "Бордакова", "role": "vs"}, {"id": 3, "username": "zhnyakina", "password": "vs123", "name": "Жнякина Светлана", "firstname": "Светлана", "lastname": "Жнякина", "role": "vs"}];
+
+/* Планы работы */
+let PLANS = {};
+
+/* Итоги недель (заметки ВС) */
+let WEEKNOTES = {};
+</script>
+<script>
+/* ============================================================
+   УТИЛИТЫ
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const AUTH_KEY = 'sw_mentor_user';
+const STORE_KEY = 'sw_mentor_data';
+
+let CUR = null;         // текущий пользователь
+let PAGE = 'dashboard';
+let EDIT_EMP = null;    // id сотрудника в режиме редактирования плана
+
+/* -------- Хранилище (localStorage — данные синхронны во всех вкладках) -------- */
+function saveStore(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      users: USERS, plans: PLANS, weeknotes: WEEKNOTES, ts: Date.now()
+    }));
+  }catch(e){ console.warn('save failed', e); }
+}
+function loadStore(){
+  try{
+    const raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return;
+    const d = JSON.parse(raw);
+    if(d.users) USERS = d.users;
+    if(d.plans) PLANS = d.plans;
+    if(d.weeknotes) WEEKNOTES = d.weeknotes;
+  }catch(e){ console.warn('load failed', e); }
+}
+/* Синхронизация между вкладками одного браузера */
+window.addEventListener('storage', e=>{
+  if(e.key === STORE_KEY){ loadStore(); render(); }
+});
+
+/* -------- Вспомогательное -------- */
+function esc(s){
+  if(s === null || s === undefined) return '';
+  return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+function initials(name){
+  if(!name) return '??';
+  const p = name.trim().split(/\s+/);
+  if(p.length === 1) return p[0].slice(0,2).toUpperCase();
+  return (p[0][0] + p[1][0]).toUpperCase();
+}
+function fmtQ(v, dec = 2){
+  if(v === null || v === undefined || v === '') return null;
+  const n = parseFloat(v);
+  if(isNaN(n)) return null;
+  return n.toFixed(dec);
+}
+function fmtMoney(v){
+  if(!v) return null;
+  const n = parseFloat(v);
+  if(isNaN(n)) return null;
+  return n.toLocaleString('ru-RU', {minimumFractionDigits:0, maximumFractionDigits:2}) + ' ₽';
+}
+/* Цветовая оценка показателя */
+function qClass(v){
+  if(v === null || v === undefined || v === '') return 'v-none';
+  const n = parseFloat(v);
+  if(isNaN(n)) return 'v-none';
+  if(n >= 90) return 'v-ok';
+  if(n >= 85) return 'v-warn';
+  return 'v-bad';
+}
+function eClass(v){
+  if(v === null || v === undefined || v === '') return 'v-none';
+  const n = parseFloat(v);
+  if(isNaN(n)) return 'v-none';
+  if(n >= 4) return 'v-ok';
+  if(n >= 3) return 'v-warn';
+  return 'v-bad';
+}
+function pill(v, type){
+  const t = type === 'q' ? qClass(v) : eClass(v);
+  const txt = (v === null || v === undefined || v === '') ? '—' :
+              (type === 'q' ? fmtQ(v) : fmtQ(v,2));
+  const cls = t === 'v-ok' ? 'p-ok' : t === 'v-warn' ? 'p-warn' : t === 'v-bad' ? 'p-bad' : 'p-none';
+  return '<span class="pill ' + cls + '">' + txt + '</span>';
+}
+function toast(msg){
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._tm);
+  t._tm = setTimeout(()=>t.classList.remove('show'), 2600);
+}
+
+/* -------- Доступ по ролям -------- */
+const ROLE_NAME = {admin:'Администратор', ro:'Руководитель отдела', rg:'Руководитель группы', vs:'Ведущий специалист'};
+function isManager(){ return CUR && (CUR.role === 'admin' || CUR.role === 'ro' || CUR.role === 'rg'); }
+/* сотрудники, доступные текущему пользователю */
+function visibleEmployees(){
+  const m = DB[CUR.month];
+  if(!m) return [];
+  if(isManager()) return m.employees;
+  /* ВС видит только своих подопечных — по фамилии */
+  return m.employees.filter(e => (e.vs||'').toLowerCase().startsWith((CUR.lastname||'').toLowerCase()));
+}
+function canEdit(){ return CUR && (CUR.role === 'admin' || CUR.role === 'vs'); }
+function canApprove(){ return CUR && (CUR.role === 'admin' || CUR.role === 'rg' || CUR.role === 'ro'); }
+</script>
+/* ============================================================
+   ЛОГИКА ПРИЛОЖЕНИЯ
+   ============================================================ */
+
+/* -------- Авторизация -------- */
+function login(){
+  const u = $('#u').value.trim();
+  const p = $('#p').value.trim();
+  if(!u || !p) return;
+  
+  const user = USERS.find(x => x.username === u && x.password === p);
+  if(!user){
+    $('#loginErr').textContent = '❌ Неверный логин или пароль';
+    $('#loginErr').style.display = 'block';
+    return;
+  }
+  
+  CUR = user;
+  CUR.month = '2026-09';
+  localStorage.setItem(AUTH_KEY, JSON.stringify(CUR));
+  render();
+}
+function logout(){
+  localStorage.removeItem(AUTH_KEY);
+  CUR = null;
+  render();
+}
+function checkAuth(){
+  const raw = localStorage.getItem(AUTH_KEY);
+  if(raw){
+    try{
+      CUR = JSON.parse(raw);
+      if(!CUR.month) CUR.month = '2026-09';
+    }catch(e){ localStorage.removeItem(AUTH_KEY); }
+  }
+}
+
+/* -------- Инициализация -------- */
+function init(){
+  checkAuth();
+  loadStore();
+  if(!CUR){
+    $('#loginScreen').style.display = 'flex';
+    $('#app').style.display = 'none';
+    $('#loginForm').addEventListener('submit', e => {e.preventDefault(); login();});
+    return;
+  }
+  
+  $('#loginScreen').style.display = 'none';
+  $('#app').style.display = 'flex';
+  
+  /* Имя пользователя */
+  $('#uName').textContent = CUR.name;
+  $('#uRole').textContent = ROLE_NAME[CUR.role] || CUR.role;
+  
+  /* Выбор месяца */
+  const sel = $('#monthSel');
+  sel.innerHTML = '';
+  Object.keys(DB).sort().forEach(m => {
+    const opt = document.createElement('option');
+    opt.value = m;
+    opt.textContent = (m.split('-')[1] === '09' ? '🔴 ' : '') + DB[m].label;
+    if(m === CUR.month) opt.selected = true;
+    sel.appendChild(opt);
+  });
+  sel.addEventListener('change', e => {
+    CUR.month = e.target.value;
+    localStorage.setItem(AUTH_KEY, JSON.stringify(CUR));
+    render();
+  });
+  
+  /* Навигация */
+  document.querySelectorAll('.nav').forEach(b => {
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.nav').forEach(x => x.classList.remove('on'));
+      b.classList.add('on');
+      PAGE = b.dataset.page || 'dashboard';
+      if(window.innerWidth <= 900) $('#side').classList.remove('open');
+      render();
+    });
+  });
+  
+  /* Скрытие меню "Пользователи" для ВС */
+  const navUsers = $('#navUsers');
+  if(navUsers){
+    if(CUR.role === 'vs') navUsers.style.display = 'none';
+    else navUsers.style.display = 'flex';
+  }
+  
+  /* Кнопки */
+  $('#logoutBtn').addEventListener('click', logout);
+  $('#menuBtn').addEventListener('click', ()=>{
+    $('#side').classList.toggle('open');
+  });
+  
+  render();
+}
+
+/* -------- Основной рендер -------- */
+function render(){
+  const months = {
+    '2025-09': 'Сентябрь 2025',
+    '2025-10': 'Октябрь 2025',
+    '2025-11': 'Ноябрь 2025',
+    '2025-12': 'Декабрь 2025',
+    '2026-01': 'Январь 2026',
+    '2026-02': 'Февраль 2026',
+    '2026-03': 'Март 2026',
+    '2026-04': 'Апрель 2026',
+    '2026-05': 'Май 2026',
+    '2026-06': 'Июнь 2026',
+    '2026-07': 'Июль 2026',
+    '2026-08': 'Август 2026',
+    '2026-09': 'Сентябрь 2026',
+  };
+  
+  const titles = {
+    dashboard: ['Главная', 'Ваши подопечные на этот месяц'],
+    metrics: ['Показатели', 'Сравнение показателей по месяцам'],
+    plans: ['План и результат', 'Управление планами развития'],
+    history: ['История сотрудников', 'Статистика по месяцам и неделям'],
+    users: ['Пользователи', 'Управление пользователями системы'],
+  };
+  
+  const t = titles[PAGE] || titles.dashboard;
+  $('#pageTitle').textContent = t[0];
+  $('#pageSub').textContent = t[1];
+  
+  let html = '';
+  if(PAGE === 'dashboard') html = viewDashboard();
+  else if(PAGE === 'metrics') html = viewMetrics();
+  else if(PAGE === 'plans') html = viewPlans();
+  else if(PAGE === 'history') html = viewHistory();
+  else if(PAGE === 'users') html = viewUsers();
+  
+  $('#view').innerHTML = html;
+  attachEvents();
+}
+
+/* ============================================================
+   ВИДЫ
+   ============================================================ */
+
+function viewDashboard(){
+  const emps = visibleEmployees();
+  const sortByVS = (a, b) => (a.vs || '').localeCompare(b.vs || '');
+  emps.sort(sortByVS);
+  
+  if(emps.length === 0){
+    return `<div class="empty">Нет подопечных на этот месяц</div>`;
+  }
+  
+  const html = emps.map(e => {
+    const qv = e.quality;
+    const qcl = qClass(qv);
+    const ecl = eClass(e.efficiency);
+    return `
+      <div class="emp-card">
+        <div class="emp-top">
+          <div class="avatar" style="background:linear-gradient(135deg,#5B4FE9,#8B7FF0);color:#fff">${initials(e.name)}</div>
+          <div>
+            <div class="nm">${esc(e.name)}</div>
+            <div class="rl">${esc(e.position)}</div>
+          </div>
+        </div>
+        <div class="emp-metrics">
+          <div class="metric">
+            <div class="lb">Качество</div>
+            <div class="vl ${qcl}">${fmtQ(qv)}<small>%</small></div>
+            <div class="bar"><i class="${qcl === 'v-ok' ? 'ok' : qcl === 'v-warn' ? 'warn' : 'bad'}" style="width:${Math.min(qv,100)}%"></i></div>
+          </div>
+          <div class="metric">
+            <div class="lb">Эффективность</div>
+            <div class="vl ${ecl}">${fmtQ(e.efficiency, 2)}</div>
+          </div>
+          <div class="metric">
+            <div class="lb">Жалобы</div>
+            <div class="vl ${e.complaints > 0 ? 'v-bad' : 'v-ok'}">${e.complaints}</div>
+          </div>
+          <div class="metric">
+            <div class="lb">Залёты</div>
+            <div class="vl ${e.incidents > 0 ? 'v-bad' : 'v-ok'}">${e.incidents}</div>
+            ${e.incidents_sum ? `<small style="display:block;margin-top:2px">${fmtMoney(e.incidents_sum)}</small>` : ''}
+          </div>
+        </div>
+        <div class="emp-foot">
+          <button class="btn btn-ghost btn-sm view-btn" data-emp="${esc(e.name)}">Подробнее</button>
+          <button class="btn btn-primary btn-sm edit-plan-btn" data-emp="${esc(e.name)}">План</button>
+        </div>
+      </div>
+    `;
+  }).join('');
+  
+  return `<div class="grid-2">${html}</div>`;
+}
+
+function viewMetrics(){
+  const emps = visibleEmployees();
+  if(emps.length === 0){
+    return `<div class="empty">Нет данных на этот месяц</div>`;
+  }
+  
+  const months = ['2026-06', '2026-07', '2026-08', '2026-09'];
+  
+  let html = `
+    <div class="panel">
+      <div class="tw">
+        <table>
+          <thead>
+            <tr class="grp">
+              <th colspan="2">Сотрудник</th>
+              <th colspan="4" class="c">Июнь 2026</th>
+              <th colspan="4" class="c">Июль 2026</th>
+              <th colspan="4" class="c">Август 2026</th>
+              <th colspan="4" class="c">Сентябрь 2026</th>
+            </tr>
+            <tr class="sub">
+              <th>Ведущий</th>
+              <th>Имя</th>
+              <th class="c">К</th><th class="c">Э</th><th class="c">Ж</th><th class="c">З</th>
+              <th class="c">К</th><th class="c">Э</th><th class="c">Ж</th><th class="c">З</th>
+              <th class="c">К</th><th class="c">Э</th><th class="c">Ж</th><th class="c">З</th>
+              <th class="c">К</th><th class="c">Э</th><th class="c">Ж</th><th class="c">З</th>
+            </tr>
+          </thead>
+          <tbody>
+  `;
+  
+  emps.forEach(e => {
+    html += `<tr>
+      <td class="sticky-1">${esc(e.vs || '—')}</td>
+      <td class="sticky-2 cell-name">${esc(e.name)}</td>
+    `;
+    months.forEach(m => {
+      const me = DB[m]?.employees?.find(x => x.name === e.name);
+      if(me){
+        html += `
+          <td class="num">${pill(me.quality, 'q')}</td>
+          <td class="num">${pill(me.efficiency, 'e')}</td>
+          <td class="num"><span class="pill ${me.complaints > 0 ? 'p-bad' : 'p-ok'}">${me.complaints}</span></td>
+          <td class="num"><span class="pill ${me.incidents > 0 ? 'p-bad' : 'p-ok'}">${me.incidents}</span></td>
+        `;
+      } else {
+        html += `<td class="c">—</td><td class="c">—</td><td class="c">—</td><td class="c">—</td>`;
+      }
+    });
+    html += `</tr>`;
+  });
+  
+  html += `
+          </tbody>
+        </table>
+      </div>
+      <div class="legend">
+        <b>Обозначения:</b> К = Качество (%), Э = Эффективность, Ж = Жалобы, З = Залёты
+      </div>
+    </div>
+  `;
+  
+  return html;
+}
+
+function viewPlans(){
+  if(EDIT_EMP){
+    return viewEditPlan();
+  }
+  
+  const emps = visibleEmployees();
+  if(emps.length === 0){
+    return `<div class="empty">Нет данных на этот месяц</div>`;
+  }
+  
+  let html = '';
+  emps.forEach(e => {
+    const key = e.name + '_' + CUR.month;
+    const plan = PLANS[key] || {};
+    
+    html += `
+      <div class="plan-card">
+        <div class="plan-head">
+          <div>
+            <h3>${esc(e.name)}</h3>
+            <div class="wl">ВС: ${esc(e.vs || '—')} | ${esc(e.position)}</div>
+          </div>
+          ${canEdit() || canApprove() ? `
+            <button class="btn btn-primary btn-sm edit-plan-btn" data-emp="${esc(e.name)}">✎ Редактировать</button>
+          ` : ''}
+        </div>
+        <div class="plan-body">
+    `;
+    
+    if(!plan.competencies || plan.competencies.length === 0){
+      html += `<div class="empty" style="padding:20px">Нет информации</div>`;
+    } else {
+      if(plan.competencies && plan.competencies.length > 0){
+        html += `<div class="plan-block">
+          <div class="lb">Компетенции для развития</div>
+          <div class="tags">
+            ${plan.competencies.map(c => `<span class="tag">${esc(c)}</span>`).join('')}
+          </div>
+        </div>`;
+      }
+      if(plan.expected_result){
+        html += `<div class="plan-block">
+          <div class="lb">Ожидаемый результат</div>
+          <div class="txt">${esc(plan.expected_result)}</div>
+        </div>`;
+      }
+      if(plan.action_plan){
+        html += `<div class="plan-block">
+          <div class="lb">План работы</div>
+          <div class="txt">${esc(plan.action_plan)}</div>
+        </div>`;
+      }
+      if(plan.result){
+        html += `<div class="plan-block">
+          <div class="lb">Итог</div>
+          <div class="txt">${esc(plan.result)}</div>
+        </div>`;
+      }
+    }
+    
+    html += `</div></div>`;
+  });
+  
+  return html;
+}
+
+function viewEditPlan(){
+  const e = visibleEmployees().find(x => x.name === EDIT_EMP);
+  if(!e){
+    EDIT_EMP = null;
+    return viewPlans();
+  }
+  
+  const key = e.name + '_' + CUR.month;
+  const plan = PLANS[key] || {};
+  
+  return `
+    <div class="plan-card">
+      <div class="plan-head">
+        <div>
+          <h3>Редактирование плана: ${esc(e.name)}</h3>
+          <div class="wl">${esc(e.position)}</div>
+        </div>
+      </div>
+      <div class="plan-body">
+        <div class="frow">
+          <div class="field">
+            <label for="compFields">Компетенции (через запятую)</label>
+            <input type="text" id="compFields" value="${(plan.competencies || []).join(', ')}" placeholder="Качество, Скорость...">
+          </div>
+        </div>
+        
+        <div class="field">
+          <label for="expectedField">Ожидаемый результат</label>
+          <textarea id="expectedField" placeholder="Какого результата вы ожидаете...">${esc(plan.expected_result || '')}</textarea>
+        </div>
+        
+        <div class="field">
+          <label for="actionField">План работы</label>
+          <textarea id="actionField" placeholder="Конкретные шаги и действия...">${esc(plan.action_plan || '')}</textarea>
+        </div>
+        
+        <div class="field">
+          <label for="resultField">Итог (заполнится в конце месяца)</label>
+          <textarea id="resultField" placeholder="Результат выполнения плана...">${esc(plan.result || '')}</textarea>
+        </div>
+      </div>
+      <div class="plan-actions">
+        <button class="btn btn-ghost btn-sm" id="cancelPlanBtn">Отменить</button>
+        <button class="btn btn-primary btn-sm" id="savePlanBtn">💾 Сохранить</button>
+      </div>
+    </div>
+  `;
+}
+
+function viewHistory(){
+  const allEmps = [];
+  Object.values(DB).forEach(m => {
+    m.employees.forEach(e => {
+      const existing = allEmps.find(x => x.name === e.name);
+      if(!existing){
+        allEmps.push({name: e.name, vs: e.vs, months: [m.label]});
+      } else {
+        if(!existing.months.includes(m.label)) existing.months.push(m.label);
+      }
+    });
+  });
+  allEmps.sort((a, b) => b.months.length - a.months.length);
+  
+  return `
+    <div class="panel">
+      <div class="panel-body">
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+          ${allEmps.map(emp => `
+            <div style="padding:14px;border:1px solid var(--border);border-radius:var(--r-sm);background:var(--bg)">
+              <div style="font-weight:600;margin-bottom:3px">${esc(emp.name)}</div>
+              <div style="font-size:12.5px;color:var(--text-2);margin-bottom:8px">ВС: ${esc(emp.vs || '—')}</div>
+              <div style="font-size:12px;color:var(--text-3)">
+                ${emp.months.length} месяцев:
+                <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:4px">
+                  ${emp.months.map(m => `<span class="badge b-ok">${m}</span>`).join('')}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function viewUsers(){
+  if(!canApprove()) return `<div class="empty">Нет доступа</div>`;
+  
+  let html = `
+    <div class="panel">
+      <div class="panel-head">
+        <h3>Пользователи системы</h3>
+        <button class="btn btn-primary btn-sm" id="addUserBtn">+ Добавить</button>
+      </div>
+      <div class="tw">
+        <table>
+          <thead>
+            <tr>
+              <th>Имя</th>
+              <th>Логин</th>
+              <th>Роль</th>
+              <th class="c">Действие</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${USERS.map((u, i) => `
+              <tr>
+                <td><strong>${esc(u.name)}</strong></td>
+                <td><code style="background:var(--bg);padding:2px 6px;border-radius:4px">${esc(u.username)}</code></td>
+                <td>${ROLE_NAME[u.role] || u.role}</td>
+                <td class="c">
+                  ${i > 0 ? `<button class="icon-btn" id="delUserBtn${i}" title="Удалить"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="width:16px;height:16px"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg></button>` : '(админ)'}
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `;
+  
+  return html;
+}
+
+/* ============================================================
+   ОБРАБОТЧИК СОБЫТИЙ
+   ============================================================ */
+function attachEvents(){
+  /* Дашборд — открыть подробнее */
+  document.querySelectorAll('.view-btn').forEach(b => {
+    b.addEventListener('click', e => {
+      const name = b.dataset.emp;
+      PAGE = 'history';
+      document.querySelectorAll('.nav').forEach(x => x.classList.remove('on'));
+      document.querySelector('[data-page="history"]')?.classList.add('on');
+      render();
+    });
+  });
+  
+  /* План — открыть форму редактирования */
+  document.querySelectorAll('.edit-plan-btn').forEach(b => {
+    b.addEventListener('click', e => {
+      EDIT_EMP = b.dataset.emp;
+      PAGE = 'plans';
+      document.querySelectorAll('.nav').forEach(x => x.classList.remove('on'));
+      document.querySelector('[data-page="plans"]')?.classList.add('on');
+      render();
+    });
+  });
+  
+  /* План — сохранить */
+  const savePlanBtn = $('#savePlanBtn');
+  if(savePlanBtn){
+    savePlanBtn.addEventListener('click', () => {
+      const key = EDIT_EMP + '_' + CUR.month;
+      PLANS[key] = {
+        competencies: $('#compFields').value.split(',').map(s => s.trim()).filter(s => s),
+        expected_result: $('#expectedField').value,
+        action_plan: $('#actionField').value,
+        result: $('#resultField').value,
+      };
+      saveStore();
+      toast('✓ План сохранён');
+      EDIT_EMP = null;
+      render();
+    });
+  }
+  
+  /* План — отменить */
+  const cancelPlanBtn = $('#cancelPlanBtn');
+  if(cancelPlanBtn){
+    cancelPlanBtn.addEventListener('click', () => {
+      EDIT_EMP = null;
+      render();
+    });
+  }
+  
+  /* Пользователи — удалить */
+  document.querySelectorAll('[id^="delUserBtn"]').forEach(b => {
+    b.addEventListener('click', () => {
+      const idx = parseInt(b.id.replace('delUserBtn', ''));
+      if(confirm('Удалить ' + USERS[idx].name + '?')){
+        USERS.splice(idx, 1);
+        saveStore();
+        toast('✓ Пользователь удалён');
+        render();
+      }
+    });
+  });
+}
+
+/* -------- Запуск -------- */
+document.addEventListener('DOMContentLoaded', init);
+
 </body>
 </html>
