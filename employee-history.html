@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>История сотрудника - Система наставничества</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        .employee-profile {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 2rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 2rem;
+            align-items: start;
+        }
+        
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+        
+        .profile-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        
+        .profile-info {
+            flex: 1;
+        }
+        
+        .profile-name {
+            font-size: 1.875rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+        
+        .profile-meta {
+            display: flex;
+            gap: 2rem;
+            color: var(--text-secondary);
+            font-size: 0.9375rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .profile-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .stat-box {
+            background: var(--bg-secondary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border);
+        }
+        
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+        
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .timeline {
+            position: relative;
+        }
+        
+        .timeline-item {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 3rem;
+        }
+        
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1rem;
+            top: 1.5rem;
+            width: 12px;
+            height: 12px;
+            background: var(--accent-cyan);
+            border-radius: 50%;
+            box-shadow: 0 0 0 4px var(--bg-secondary);
+        }
+        
+        .timeline-item::after {
+            content: '';
+            position: absolute;
+            left: 1.375rem;
+            top: 2.5rem;
+            bottom: -1.5rem;
+            width: 2px;
+            background: var(--border);
+        }
+        
+        .timeline-item:last-child::after {
+            display: none;
+        }
+        
+        .timeline-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-month {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .timeline-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .timeline-metric {
+            background: var(--bg-secondary);
+            padding: 0.75rem;
+            border-radius: var(--radius-sm);
+        }
+        
+        .timeline-metric-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            margin-bottom: 0.25rem;
+        }
+        
+        .timeline-metric-value {
+            font-size: 1.125rem;
+            font-weight: 600;
+        }
+        
+        .weeks-section {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+        }
+        
+        .week-item {
+            background: var(--bg-primary);
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1px solid var(--border);
+        }
+        
+        .week-header {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--accent-cyan);
+            margin-bottom: 0.75rem;
+        }
+        
+        .week-summary {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            line-height: 1.6;
+            font-style: italic;
+        }
+        
+        .chart-container {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            height: 300px;
+        }
+        
+        .filter-bar {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: 1rem 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+        
+        .filter-bar select {
+            padding: 0.5rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-sm);
+            color: var(--text-primary);
+            font-size: 0.875rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2>🎯 Наставничество</h2>
+                <p class="user-role" id="userName">Загрузка...</p>
+            </div>
+            
+            <div class="month-selector">
+                <label for="monthSelect">Период</label>
+                <select id="monthSelect">
+                    <option value="2026-09">Сентябрь 2026</option>
+                    <option value="2026-08">Август 2026</option>
+                    <option value="2026-07">Июль 2026</option>
+                    <option value="2026-06">Июнь 2026</option>
+                </select>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    Главная
+                </a>
+                
+                <a href="analytics.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                    </svg>
+                    Показатели
+                </a>
+                
+                <a href="plans.html" class="nav-item">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                    </svg>
+                    План и результат
+                </a>
+                
+                <a href="employee-history.html" class="nav-item active">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    История сотрудников
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <button onclick="window.authModule.logout()" class="btn btn-secondary" style="width: 100%;">
+                    <svg fill="none" stroke="currentColor" viewBox="0 0 24 24" style="width: 16px; height: 16px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/>
+                    </svg>
+                    Выход
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="page-header">
+                <h1>История сотрудников</h1>
+                <p>Статистика и динамика показателей по месяцам</p>
+            </div>
+            
+            <div class="filter-bar">
+                <label style="color: var(--text-secondary); font-size: 0.875rem;">Выберите сотрудника:</label>
+                <select id="employeeSelect" style="flex: 1; max-width: 400px;">
+                    <option value="">Загрузка...</option>
+                </select>
+            </div>
+            
+            <div id="employeeProfile" style="display: none;">
+                <!-- Профиль сотрудника -->
+            </div>
+            
+            <div id="employeeTimeline" style="display: none;">
+                <!-- Временная шкала -->
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const currentUser = window.authModule.checkAuth();
+        if (!currentUser) {
+            window.location.href = 'index.html';
+        }
+        
+        document.getElementById('userName').textContent = currentUser.name;
+        
+        let currentDatabase = null;
+        let selectedEmployee = null;
+        
+        // Проверяем, есть ли id в URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const employeeIdFromUrl = urlParams.get('id');
+        
+        async function loadEmployeesList() {
+            const database = await window.authModule.loadDatabase();
+            if (!database) return;
+            
+            currentDatabase = database;
+            
+            let employees = database.employees;
+            if (currentUser.role === 'vs') {
+                employees = employees.filter(emp => emp.vs_id === currentUser.id);
+            }
+            
+            const select = document.getElementById('employeeSelect');
+            select.innerHTML = '<option value="">Выберите сотрудника...</option>';
+            
+            employees.forEach(emp => {
+                const option = document.createElement('option');
+                option.value = emp.id;
+                option.textContent = `${emp.name} (${emp.vs})`;
+                select.appendChild(option);
+            });
+            
+            // Если есть id в URL, выбираем этого сотрудника
+            if (employeeIdFromUrl) {
+                select.value = employeeIdFromUrl;
+                loadEmployeeHistory(parseInt(employeeIdFromUrl));
+            }
+        }
+        
+        function loadEmployeeHistory(employeeId) {
+            if (!currentDatabase) return;
+            
+            const employee = currentDatabase.employees.find(e => e.id === employeeId);
+            if (!employee) return;
+            
+            selectedEmployee = employee;
+            
+            // Показываем профиль
+            displayProfile(employee);
+            
+            // Показываем временную шкалу
+            displayTimeline(employee);
+        }
+        
+        function displayProfile(employee) {
+            const profileContainer = document.getElementById('employeeProfile');
+            profileContainer.style.display = 'block';
+            
+            // Подсчитываем статистику
+            const allMonths = employee.history;
+            const avgQuality = allMonths.reduce((sum, m) => sum + (m.quality || 0), 0) / allMonths.length;
+            const avgEfficiency = allMonths.reduce((sum, m) => sum + (m.efficiency || 0), 0) / allMonths.length;
+            const totalComplaints = allMonths.reduce((sum, m) => sum + (m.complaints || 0), 0);
+            const totalIncidents = allMonths.reduce((sum, m) => sum + (m.incidents || 0), 0);
+            
+            profileContainer.innerHTML = `
+                <div class="employee-profile">
+                    <div class="profile-avatar">
+                        <img src="${employee.avatar}" alt="${employee.name}">
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">${employee.name}</div>
+                        <div class="profile-meta">
+                            <span>👤 ${employee.position}</span>
+                            <span>🎯 Ведущий: ${employee.vs}</span>
+                            <span>📅 Отслеживается: ${allMonths.length} мес.</span>
+                        </div>
+                        
+                        <div class="profile-stats">
+                            <div class="stat-box">
+                                <div class="stat-label">Средн. качество</div>
+                                <div class="stat-value text-${avgQuality >= 90 ? 'success' : avgQuality >= 85 ? 'warning' : 'danger'}">
+                                    ${avgQuality.toFixed(1)}%
+                                </div>
+                            </div>
+                            
+                            <div class="stat-box">
+                                <div class="stat-label">Средн. эффективность</div>
+                                <div class="stat-value">${avgEfficiency.toFixed(2)}</div>
+                            </div>
+                            
+                            <div class="stat-box">
+                                <div class="stat-label">Всего жалоб</div>
+                                <div class="stat-value ${totalComplaints > 0 ? 'text-danger' : 'text-success'}">${totalComplaints}</div>
+                            </div>
+                            
+                            <div class="stat-box">
+                                <div class="stat-label">Всего залётов</div>
+                                <div class="stat-value ${totalIncidents > 0 ? 'text-danger' : 'text-success'}">${totalIncidents}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function displayTimeline(employee) {
+            const timelineContainer = document.getElementById('employeeTimeline');
+            timelineContainer.style.display = 'block';
+            
+            const sortedHistory = [...employee.history].sort((a, b) => b.month.localeCompare(a.month));
+            
+            timelineContainer.innerHTML = `
+                <div class="timeline">
+                    ${sortedHistory.map(month => createTimelineItem(month)).join('')}
+                </div>
+            `;
+        }
+        
+        function createTimelineItem(monthData) {
+            function getClass(value, type) {
+                if (!value) return '';
+                if (type === 'quality') {
+                    if (value >= 90) return 'text-success';
+                    if (value >= 85) return 'text-warning';
+                    return 'text-danger';
+                }
+                if (type === 'complaints' || type === 'incidents') {
+                    return value > 0 ? 'text-danger' : 'text-success';
+                }
+                return '';
+            }
+            
+            const weeksHtml = monthData.weeks ? `
+                <div class="weeks-section">
+                    <div style="font-size: 0.875rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 0.75rem;">
+                        Итоги по неделям:
+                    </div>
+                    ${monthData.weeks.map(week => `
+                        <div class="week-item">
+                            <div class="week-header">${week.week}</div>
+                            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-bottom: 0.75rem;">
+                                <div>
+                                    <div class="timeline-metric-label">Качество</div>
+                                    <div class="timeline-metric-value ${getClass(week.quality, 'quality')}">
+                                        ${week.quality ? week.quality + '%' : '—'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="timeline-metric-label">Эффективность</div>
+                                    <div class="timeline-metric-value">
+                                        ${week.efficiency || '—'}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="timeline-metric-label">Жалобы</div>
+                                    <div class="timeline-metric-value ${getClass(week.complaints, 'complaints')}">
+                                        ${week.complaints || 0}
+                                    </div>
+                                </div>
+                                <div>
+                                    <div class="timeline-metric-label">Залёты</div>
+                                    <div class="timeline-metric-value ${getClass(week.incidents, 'incidents')}">
+                                        ${week.incidents || 0}
+                                    </div>
+                                </div>
+                            </div>
+                            ${week.summary ? `<div class="week-summary">"${week.summary}"</div>` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            ` : '';
+            
+            return `
+                <div class="timeline-item">
+                    <div class="timeline-header">
+                        <div class="timeline-month">${monthData.month_name}</div>
+                        ${monthData.incidents_sum ? `
+                            <span class="badge badge-danger">Залёты: ${monthData.incidents_sum.toFixed(2)} ₽</span>
+                        ` : ''}
+                    </div>
+                    
+                    <div class="timeline-metrics">
+                        <div class="timeline-metric">
+                            <div class="timeline-metric-label">Качество</div>
+                            <div class="timeline-metric-value ${getClass(monthData.quality, 'quality')}">
+                                ${monthData.quality ? monthData.quality.toFixed(1) + '%' : '—'}
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-metric">
+                            <div class="timeline-metric-label">Эффективность</div>
+                            <div class="timeline-metric-value">
+                                ${monthData.efficiency ? monthData.efficiency.toFixed(2) : '—'}
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-metric">
+                            <div class="timeline-metric-label">Жалобы</div>
+                            <div class="timeline-metric-value ${getClass(monthData.complaints, 'complaints')}">
+                                ${monthData.complaints || 0}
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-metric">
+                            <div class="timeline-metric-label">Залёты</div>
+                            <div class="timeline-metric-value ${getClass(monthData.incidents, 'incidents')}">
+                                ${monthData.incidents || 0}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    ${weeksHtml}
+                </div>
+            `;
+        }
+        
+        // Обработчик выбора сотрудника
+        document.getElementById('employeeSelect').addEventListener('change', (e) => {
+            const employeeId = parseInt(e.target.value);
+            if (employeeId) {
+                loadEmployeeHistory(employeeId);
+            } else {
+                document.getElementById('employeeProfile').style.display = 'none';
+                document.getElementById('employeeTimeline').style.display = 'none';
+            }
+        });
+        
+        // Инициализация
+        loadEmployeesList();
+    </script>
+</body>
+</html>
